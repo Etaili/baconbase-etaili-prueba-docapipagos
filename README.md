@@ -127,3 +127,25 @@ A continuación se muestra el diagrama de casos de uso para el API de gestión d
 ### 6. **Verificar Estatus del Pago**
 - **Descripción**: La verificación del estatus permite a los usuarios finales consultar el estado actual de sus pagos, lo que es crucial para la transparencia y la satisfacción del cliente.
 
+# 🖼️ Diagrama de Arquitectura
+
+A continuación se muestra el diagrama de arquitectura del API de gestión de pagos:
+
+![Diagrama de Arquitectura](https://etaili.s3.amazonaws.com/Diagrama+de+Arquitectura.png)
+
+## 📌 Componentes Principales
+
+### 1. **Cliente (Frontend)**
+- **Descripción**: La interfaz de usuario desde la cual los clientes interactúan con el sistema, ya sea para realizar pagos o consultar su estatus.
+
+### 2. **API Gateway**
+- **Descripción**: El punto de entrada para todas las solicitudes al sistema. Este componente dirige las solicitudes al servicio adecuado.
+
+### 3. **Servicio de Pagos (Backend)**
+- **Descripción**: Maneja toda la lógica de negocio relacionada con la gestión de pagos, incluyendo la creación, verificación, y modificación de pagos.
+
+### 4. **Base de Datos**
+- **Descripción**: Almacena todos los registros de pago, asegurando la persistencia y consistencia de los datos.
+
+### 5. **RabbitMQ**
+- **Descripción**: Sistema de mensajería encargado de recibir y gestionar las notificaciones cuando el estatus de un pago cambia.
