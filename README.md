@@ -99,7 +99,8 @@ El API debe notificar automáticamente al sistema de mensajería (RabbitMQ) cada
 - **Usuario Final**: Realiza pagos y consulta su estatus.
 - **Administrador**: Modifica el estatus de pagos y revisa el sistema de notificaciones.
 - **Sistema de Mensajería (RabbitMQ)**: Recibe notificaciones de cambios de estatus para su procesamiento posterior.
-- 
+  
+---
 
 # 📊 Diagrama de Casos de Uso
 
@@ -149,3 +150,216 @@ A continuación se muestra el diagrama de arquitectura del API de gestión de pa
 
 ### 5. **RabbitMQ**
 - **Descripción**: Sistema de mensajería encargado de recibir y gestionar las notificaciones cuando el estatus de un pago cambia.
+
+---
+
+# 📚 Documentación del API de Gestión de Pagos
+
+## 🔗 Endpoints del API
+
+### 1. **Crear un Pago**
+
+- **Endpoint**: `POST /api/pagos`
+- **Descripción**: Este endpoint permite la creación de un nuevo pago en el sistema.
+
+**Parámetros de Entrada**:
+
+| Parámetro         | Tipo     | Descripción                                       | Obligatorio |
+|-------------------|----------|---------------------------------------------------|-------------|
+| `concepto`        | `string` | Descripción breve del motivo del pago.            | Sí          |
+| `cantidad`        | `number` | La cantidad numérica correspondiente al pago.     | Sí          |
+| `quien_realiza`   | `string` | Identificación del pagador (nombre o ID).         | Sí          |
+| `a_quien_se_paga` | `string` | Identificación del beneficiario (nombre o ID).    | Sí          |
+| `monto`           | `number` | Monto total a pagar.                              | Sí          |
+| `estatus`         | `string` | Estado inicial del pago (`pendiente`).            | Sí          |
+
+**Respuesta**:
+
+| Campo          | Tipo     | Descripción                               |
+|----------------|----------|-------------------------------------------|
+| `id_pago`      | `string` | Identificador único del pago creado.       |
+| `concepto`     | `string` | Descripción del motivo del pago.           |
+| `cantidad`     | `number` | La cantidad numérica correspondiente.      |
+| `quien_realiza`| `string` | Identificación del pagador.                |
+| `a_quien_se_paga`| `string`| Identificación del beneficiario.           |
+| `monto`        | `number` | Monto total a pagar.                       |
+| `estatus`      | `string` | Estado actual del pago (`pendiente`).      |
+| `fecha_creacion`| `string` | Fecha y hora en que se creó el pago.      |
+
+**Ejemplo de Solicitud**:
+
+```http
+POST /api/pagos
+```
+
+```json
+{
+  "concepto": "Compra de Producto X",
+  "cantidad": 2,
+  "quien_realiza": "Juan Perez",
+  "a_quien_se_paga": "Compañía XYZ",
+  "monto": 500.00,
+  "estatus": "pendiente"
+}
+```
+**Ejemplo de Respuesta**:
+
+```json
+{
+  "id_pago": "123456789",
+  "concepto": "Compra de Producto X",
+  "cantidad": 2,
+  "quien_realiza": "Juan Perez",
+  "a_quien_se_paga": "Compañía XYZ",
+  "monto": 500.00,
+  "estatus": "pendiente",
+  "fecha_creacion": "2024-09-03T12:34:56Z"
+}
+```
+
+### 2. **Verificar Estatus de un Pago**
+
+- **Endpoint**: `GET /api/pagos/{id}/estatus`
+- **Descripción**: Este endpoint permite consultar el estatus actual de un pago registrado.
+
+**Parámetros de Entrada**:
+
+| Parámetro | Tipo     | Descripción                       | Obligatorio |
+|-----------|----------|-----------------------------------|-------------|
+| `id`      | `string` | Identificador único del pago.     | Sí          |
+
+**Respuesta**:
+
+| Campo               | Tipo     | Descripción                     |
+|---------------------|----------|---------------------------------|
+| `id_pago`           | `string` | Identificador único del pago.   |
+| `estatus`           | `string` | Estado actual del pago.         |
+| `fecha_actualizacion` | `string` | Fecha y hora de la última actualización del estatus. |
+
+**Ejemplo de Solicitud**:
+
+```http
+GET /api/pagos/123456789/estatus
+```
+
+**Ejemplo de Respuesta**:
+
+```json
+{
+  "id_pago": "123456789",
+  "estatus": "pendiente",
+  "fecha_actualizacion": "2024-09-03T12:34:56Z"
+}
+```
+
+### 3. **Cambiar Estatus de un Pago**
+
+- **Endpoint**: `PUT /api/pagos/{id}/estatus`
+- **Descripción**: Este endpoint permite modificar el estatus de un pago existente.
+
+**Parámetros de Entrada**:
+
+| Parámetro | Tipo     | Descripción                                              | Obligatorio |
+|-----------|----------|----------------------------------------------------------|-------------|
+| `id`      | `string` | Identificador único del pago.                            | Sí          |
+| `estatus` | `string` | Nuevo estado del pago (`completado`, `fallido`).         | Sí          |
+
+**Respuesta**:
+
+| Campo                 | Tipo     | Descripción                                  |
+|-----------------------|----------|----------------------------------------------|
+| `id_pago`             | `string` | Identificador único del pago.                |
+| `estatus`             | `string` | Nuevo estado del pago.                       |
+| `fecha_actualizacion` | `string` | Fecha y hora de la actualización del estatus.|
+
+**Ejemplo de Solicitud**:
+
+```http
+PUT /api/pagos/123456789/estatus
+```
+
+```json
+{
+  "estatus": "completado"
+}
+```
+
+**Ejemplo de Respuesta**:
+
+```json
+{
+  "id_pago": "123456789",
+  "estatus": "completado",
+  "fecha_actualizacion": "2024-09-03T13:45:00Z"
+}
+```
+
+### 4. **Notificación de Cambio de Estatus (Automático)**
+
+- **Descripción**: Este proceso se activa automáticamente cuando se cambia el estatus de un pago. Una notificación es enviada a RabbitMQ con los detalles del cambio.
+
+**Contenido del Mensaje**:
+
+| Campo           | Tipo     | Descripción                               |
+|-----------------|----------|-------------------------------------------|
+| `id_pago`       | `string` | Identificador único del pago.             |
+| `estatus_nuevo` | `string` | Nuevo estado del pago.                    |
+| `fecha_cambio`  | `string` | Fecha y hora en que se realizó el cambio. |
+
+**Ejemplo de Mensaje**:
+
+```json
+{
+  "id_pago": "123456789",
+  "estatus_nuevo": "completado",
+  "fecha_cambio": "2024-09-03T13:45:00Z"
+}
+```
+
+## ✅ Conclusión
+
+La documentación del API de gestión de pagos proporciona una guía clara y detallada sobre cómo interactuar con los diferentes endpoints del sistema. Cada sección incluye:
+
+- **Descripción clara de los endpoints**: Detallando la funcionalidad y propósito de cada uno.
+- **Especificación de los parámetros de entrada y salida**: Indicando los tipos de datos esperados y los campos que deben ser enviados y recibidos.
+- **Ejemplos de uso**: Proporcionando ejemplos prácticos que ilustran cómo deben formarse las solicitudes y cómo se verán las respuestas, facilitando la integración y el uso del API.
+
+---
+
+# ⚠️ Lista de Riesgos del Proyecto
+
+### 1. **Identificación de Riesgos Relevantes**
+
+A continuación, se enumeran algunos de los riesgos más significativos que podrían afectar el éxito del proyecto de desarrollo del API de gestión de pagos:
+
+- **Pérdida de datos al cambiar el estatus de un pago**: Existe el riesgo de que, durante el proceso de actualización del estatus de un pago, se produzca una pérdida de datos debido a errores en la transacción o fallos en la base de datos.
+- **Fallas en la notificación a RabbitMQ**: Si RabbitMQ no recibe la notificación de cambio de estatus, otros sistemas dependientes pueden no reaccionar correctamente, causando inconsistencias en el flujo de trabajo.
+- **Sobrecarga del sistema bajo alta demanda**: El API podría experimentar una sobrecarga bajo condiciones de alta demanda, lo que podría afectar la disponibilidad y el rendimiento del sistema.
+
+### 2. **Evaluación del Impacto y Probabilidad**
+
+Cada riesgo se evalúa en función de su impacto y probabilidad:
+
+| Riesgo                                        | Impacto  | Probabilidad | Nivel de Riesgo |
+|----------------------------------------------|----------|--------------|----------------|
+| Pérdida de datos al cambiar el estatus        | Alto     | Medio        | Alto           |
+| Fallas en la notificación a RabbitMQ          | Medio    | Alto         | Alto           |
+| Sobrecarga del sistema bajo alta demanda      | Alto     | Medio        | Alto           |
+
+### 3. **Propuesta de Estrategias de Mitigación Realistas**
+
+Para cada riesgo identificado, se proponen las siguientes estrategias de mitigación:
+
+- **Pérdida de datos al cambiar el estatus**:
+  - Realizar copias de seguridad regulares de la base de datos para evitar la pérdida de información crítica.
+  
+- **Fallas en la notificación a RabbitMQ**:
+  - Implementar un mecanismo de reintento automático para asegurar que los mensajes no entregados se vuelvan a intentar hasta que se confirme la entrega exitosa.
+  - Monitorear RabbitMQ y establecer alertas para fallos en la entrega de mensajes.
+
+- **Sobrecarga del sistema bajo alta demanda**:
+  - Utilizar técnicas de caché para reducir la carga en la base de datos durante picos de tráfico.
+
+---
+
+Esta lista de riesgos proporciona una visión clara de los desafíos potenciales que podrían afectar el proyecto, junto con estrategias prácticas para mitigar dichos riesgos y asegurar el éxito del desarrollo e implementación del API. Con estas medidas, es posible reducir significativamente la probabilidad de problemas graves y mantener la integridad y seguridad del sistema.
