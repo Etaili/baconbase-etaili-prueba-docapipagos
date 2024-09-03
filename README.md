@@ -1,3 +1,26 @@
+![Diagrama de Arquitectura](https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQGL7Jkn7L_18-o78xty53EeoTL8W_z2ORnyA&s)
+
+# 🚀 Prueba Técnica de API de Gestión de Pagos
+
+Bienvenido a la documentación del API de gestión de pagos. En este documento, se presentan los entregables y aspectos clave del ejercicio técnico, que incluyen:
+
+1. 📝 **Especificación de Requisitos del API**:
+   - Detalle de los objetivos del API, sus funcionalidades, y consideraciones de implementación.
+
+2. 📊 **Diagrama de Casos de Uso**:
+   - Representación gráfica de los casos de uso principales, los actores involucrados, y las relaciones entre ellos.
+
+3. 🖼️ **Diagrama de Arquitectura**:
+   - Descripción visual de los componentes principales del sistema y cómo interactúan entre sí.
+
+4. 📚 **Documentación del API**:
+   - Explicación detallada de los endpoints, parámetros de entrada y salida, y ejemplos de uso para cada operación del API.
+
+5. ⚠️ **Lista de Riesgos del Proyecto**:
+   - Identificación de posibles riesgos, evaluación de su impacto y probabilidad, y propuestas de mitigación realistas.
+
+---
+
 # 📝 Especificación de Requisitos del API de Gestión de Pagos
 
 ## 🎯 1. **Objetivo del API**
